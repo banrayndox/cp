@@ -1,99 +1,91 @@
 #include <iostream>
-#include <string.h>
-#include <climits>
+#include <vector>
 #include <algorithm>
 using namespace std;
 
-
-int bubble(int *array, int length){
-    for(int i=0; i<length-1; i++){
-        for(int j=0; j<length-i-1; j++){
-            if(array[j]<array[j+1]){
-                int temp = array[j+1];
-                array[j+1] = array[j];
-                array[j] = temp;
+// 🔹 Bubble Sort
+void bubbleSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 0; i < n - 1; i++) {
+        bool swapped = false;
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j+1]) {
+                swap(arr[j], arr[j+1]);
+                swapped = true;
             }
         }
+        if (!swapped) break; // already sorted
     }
-    return 0;
 }
 
-
-int selection(int *array, int length){
-    
-    for(int i=0; i<length; i++){
-        int index = i;
-        for(int j=i+1; j<length; j++){
-            if(array[index] < array[j]){
-                int temp = array[index];
-                array[index] = array[j];
-                array[j] = temp;
+// 🔹 Selection Sort
+void selectionSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 0; i < n - 1; i++) {
+        int minIndex = i;
+        for (int j = i+1; j < n; j++) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
             }
         }
+        swap(arr[i], arr[minIndex]);
     }
-    return 0;
 }
 
-
-
-int insertion(int* array, int length){
-    
-    for(int i=1; i<length; i++){
-        int key = array[i];
-        int prev = i-1;
-        while(array[prev]<key && prev>=0){
-            swap(array[prev], array[prev+1]);
-            prev--;
+// 🔹 Insertion Sort
+void insertionSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 1; i < n; i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j+1] = arr[j];
+            j--;
         }
-        array[prev+1] = key;
+        arr[j+1] = key;
     }
-    
-    return 0;
-    
 }
 
+// 🔹 Counting Sort (non-negative integers only)
+void countingSort(vector<int>& arr) {
+    if (arr.empty()) return;
+    int maxVal = *max_element(arr.begin(), arr.end());
 
-
-
-
-
-int count(int *array, int length){
-    int maxValue = INT_MIN;
-    int minValue = INT_MAX;
-    for(int i=0; i<length; i++){
-        if(array[i]>maxValue) maxValue  = array[i];
-        if(array[i]<minValue) minValue = array[i];
-        
+    vector<int> count(maxVal + 1, 0);
+    for (int num : arr) {
+        count[num]++;
     }
-    int freq[10000];
-    memset(freq,0,sizeof(freq));
-    
-    for(int i=0; i<length; i++){
-        freq[array[i]]++;
-    }
-    int index = 0;
-    for(int i=maxValue; i>=minValue; i--){
-        while(freq[i]>0){
-            array[index++] = i;
-            freq[i]--;
+
+    int idx = 0;
+    for (int i = 0; i <= maxVal; i++) {
+        while (count[i] > 0) {
+            arr[idx++] = i;
+            count[i]--;
         }
     }
-    
-    
-    return 0;
 }
 
+// 🔹 Utility function to print array
+void printArray(const vector<int>& arr) {
+    for (int num : arr) cout << num << " ";
+    cout << endl;
+}
 
+int main() {
+    vector<int> arr = {5, 2, 9, 1, 5, 6};
 
+    cout << "Original Array: ";
+    printArray(arr);
 
-int main(){
-    int array[] = {3, 6, 2, 1, 8, 7, 4, 5, 3, 1};
-    int length  = sizeof(array) / sizeof(array[0]);
-    insertion(array, length);
-    for(int i=0; i<length; i++){
-        cout << array[i] <<endl;
-    }
+    // ✅ যেকোনো একটা call করো:
     
-    
+    // bubbleSort(arr);
+    // selectionSort(arr);
+    // insertionSort(arr);
+    countingSort(arr);
+
+    cout << "Sorted Array: ";
+    printArray(arr);
+
     return 0;
 }
