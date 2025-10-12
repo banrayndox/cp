@@ -1,3 +1,5 @@
+// Boyer-Moore Voting Algorithm
+
 #include <iostream>
 #include <vector>
 using namespace std;
