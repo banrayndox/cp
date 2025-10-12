@@ -1,0 +1,25 @@
+#include <iostream>
+#include <string>
+#include <stack>
+using namespace std;
+bool isPalindrome(string temp){
+    stack<char> temp2;
+    for(char ch : temp){
+        temp2.push(ch);
+    }
+    int index = temp.size()-1;
+    while(!temp2.empty()){
+        if(temp2.top()!=temp[index]){
+            return false;
+        }
+        temp2.pop();
+        index--;
+    }
+    return true;
+}
+int main(){
+    string name = "RAR";
+    (isPalindrome(name)) ?  ( cout << "YES" ) : ( cout << "NO" ) << endl; 
+    
+    return 0;
+}
