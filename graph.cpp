@@ -40,6 +40,23 @@ void BFS(int src){
      }
     }
 }
+int sizeofV(){
+    return V;
+}
+
+void DFS_helper(int src, vector<bool> &vis){
+    vis[src] = true;
+    cout << src << " ";
+    for(int x: l[src]){
+        if(!vis[x]) DFS_helper(x, vis);
+    }
+    
+}
+void DFS(int src){
+ vector<bool> vis (V, false);
+ DFS_helper(src, vis);
+ cout << endl;
+}
 };
 
 
@@ -54,5 +71,7 @@ int main(){
     graph.display();
     cout << endl;
     graph.BFS(0);
+    cout << endl;
+    graph.DFS(0);
     return 0;
 }
