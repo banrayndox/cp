@@ -2,81 +2,138 @@
 using namespace std;
 class Node{
     public:
-    int key;
+    int key, height;
     Node* left, * right;
-    int height;
-    Node(int key) : key(key), left(nullptr), right(nullptr), height(1){};
+    Node(int key): key(key), left(nullptr), right(nullptr), height(1){};
 };
-class AVL_tree{
+class AVL_TREE{
     public:
     Node* root;
-    AVL_tree() : root(nullptr){};
+    AVL_TREE() : root(nullptr){};
+    void in_order(Node* root){
+        if(!root) return;
+        in_order(root->left);
+        cout << root->key << ", ";
+        in_order(root->right);
+    }
     int height(Node* root){
         return root ? root->height : 0;
     }
     int updateHeight(Node* root){
-        return 1 + max(height(root->left), height(root->right));
+       return 1 + max(height(root->left), height(root->right)); 
     }
-    int balance(Node* root){
+    int balanceFactor(Node* root){
         return height(root->left) - height(root->right);
     }
-    // LL case
-    Node* rightRotate(Node* root){
+    Node* leftRotation(Node* root){
+        Node* rightChild = root->right;
+        Node* temp = rightChild->left;
+        rightChild->left = root;
+        root->right = temp;
+        root->height = updateHeight(root);
+        rightChild->height = updateHeight(rightChild);
+        return rightChild;
+    }
+    Node* rightRotation(Node* root){
         Node* leftChild = root->left;
-        Node* T3 = leftChild->right;
+        Node* temp = leftChild->right;
         leftChild->right = root;
-        root->left = T3;
+        root->left = temp;
         root->height = updateHeight(root);
         leftChild->height = updateHeight(leftChild);
         return leftChild;
     }
-    // RR case
-    Node* leftRotate(Node* root){
-        Node* rightChild = root->right;
-        Node* T2 = rightChild->left;
-        rightChild->left = root;
-        root->right = T2;
-        root->height = updateHeight(root);
-        rightChild->height = updateHeight(rightChild);
-        return rightChild; 
-    }
     Node* insert(Node* root, int key){
         if(!root) return new Node(key);
-        else if(key < root->key) root->left = insert(root->left, key);
-        else if(key > root->key) root->right = insert(root->right, key);
-        else return root;
+        else if (root->key > key) root->left = insert(root->left, key);
+        else if(root->key < key) root->right = insert(root->right, key);
         root->height = updateHeight(root);
-        int balancef = balance(root);
-        if( balancef < -1 ){
-            if(key > root->right->key){
-                return leftRotate(root);
+        int bf = balanceFactor(root);
+        if( bf > 1 ){
+            if(key < root->left->key ){
+                // LL
+                return rightRotation(root);
             }else{
-                root->right = rightRotate(root->right);
-                return leftRotate(root);
+                // LR
+                root->left = leftRotation(root->left);
+                return rightRotation(root);
             }
-        }else if ( balancef > 1 ){
-            if(key < root->left->key) return rightRotate(root);
-            else {
-                root->left = leftRotate(root->left);
-                return rightRotate(root);
-                
+        }else if( bf < -1) {
+            if(key > root->right->key){
+                return leftRotation(root);
+            }else{
+                //RL
+                root->right = rightRotation(root->right);
+                return leftRotation(root);
             }
         }
         return root;
     }
-    void display_inOrder(Node* root){
-        if(!root) return;
-        display_inOrder(root->left);
-        cout << root->key << ", ";
-        display_inOrder(root->right);
+    Node* findMin(Node* root){
+        if(!root) return nullptr;
+        if(!root->left) return root;
+        return findMin(root->left);
+    }
+    Node* erase(Node* root, int key){
+        if(!root) return nullptr;
+        if(key > root->key) root->right = erase(root->right, key);
+        else if(key < root->key) root->left = erase(root->left, key);
+        else {
+            if(!root->left && !root->right){
+                delete root;
+                return nullptr;
+            }
+            else if(!root->left || !root->right){
+                if(root->left){
+                    Node* temp = root->left;
+                    delete root;
+                    return temp;
+                }else if(root->right){
+                    Node* temp = root->right;
+                    delete root;
+                    return temp;
+                }
+            }
+            else{
+                Node* successor = findMin(root->right);
+                root->key = successor->key;
+                root->right = erase(root->right, successor->key);
+            }
+        }
+        root->height = updateHeight(root);
+        int bf = balanceFactor(root);
+        if(bf > 1){
+            if(balanceFactor(root->left) >=0 ){
+                // LL
+                return rightRotation(root);
+            }else{
+                // LR
+                root->left = leftRotation(root->left);
+                return rightRotation(root);
+            }
+        }else if( bf < -1){
+            if(balanceFactor(root->right) <= 0){
+                return leftRotation(root);
+            }else{
+                root->right = rightRotation(root->right);
+                return leftRotation(root);
+            }
+            
+        }
+        return root;
     }
 };
-
 int main(){
-    vector<int> array = {20,30,30,10,50,60,70};
-    AVL_tree Tree;
+    vector<int> array = { 30, 20, 10, 50, 60, 70, 80, 100, 120, 90, 95 };
+    AVL_TREE tree;
     for(auto x: array){
-       Tree.root = Tree.insert(Tree.root, x);
+        tree.root = tree.insert(tree.root, x);
     }
-    Tree.display_inOrder(Tree.root);
+    cout << "IN_Order: " << endl;
+    tree.in_order(tree.root);
+    cout << endl;
+    tree.erase(tree.root, 100);
+    cout << endl << "After deletion :" << endl;
+    tree.in_order(tree.root);
+    return 0;
 }
